@@ -1,0 +1,79 @@
+services:
+  users-db:
+    image: postgres:13-alpine
+    container_name: users_db
+    environment:
+      POSTGRES_USER: ${USERS_DB_USER}
+      POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
+      POSTGRES_DB: ${USERS_DB_NAME}
+    ports:
+      - "${USERS_DB_PORT}:5432"
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USERS_DB_USER} -d ${USERS_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  users-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: users-api
+    container_name: users_api
+    ports:
+      - "8080:8080"
+    environment:
+      USERS_DB_HOST: ${USERS_DB_HOST}
+      USERS_DB_PORT: ${USERS_DB_PORT}
+      USERS_DB_USER: ${USERS_DB_USER}
+      USERS_DB_PASSWORD: ${USERS_DB_PASSWORD}
+      USERS_DB_NAME: ${USERS_DB_NAME}
+      API_PORT: ${API_PORT}
+    depends_on:
+      users-db:
+        condition: service_healthy
+
+  products-db:
+    image: postgres:13-alpine
+    container_name: products_db
+    environment:
+      POSTGRES_USER: ${PRODUCTS_DB_USER}
+      POSTGRES_PASSWORD: ${PRODUCTS_DB_PASSWORD}
+      POSTGRES_DB: ${PRODUCTS_DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - products_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCTS_DB_USER} -d ${PRODUCTS_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  products-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: products-api
+    container_name: products_api
+    ports:
+      - "8081:8080"
+    environment:
+      PRODUCTS_DB_HOST: ${PRODUCTS_DB_HOST}
+      PRODUCTS_DB_PORT: ${PRODUCTS_DB_PORT}
+      PRODUCTS_DB_USER: ${PRODUCTS_DB_USER}
+      PRODUCTS_DB_PASSWORD: ${PRODUCTS_DB_PASSWORD}
+      PRODUCTS_DB_NAME: ${PRODUCTS_DB_NAME}
+      API_PORT: ${API_PORT}
+
+    depends_on:
+      products-db:
+        condition: service_healthy
+
+volumes:
+  users_db_data:
+  products_db_data:

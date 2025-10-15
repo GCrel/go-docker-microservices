@@ -1,0 +1,76 @@
+# .gitignore
+
+# Archivos binarios o ejecutables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Directorio bin (si generas ejecutables ahí)
+bin/
+build/
+dist/
+
+# Cache de compilación
+*.a
+*.o
+
+# Archivos creados por `go build`, `go run`, `go test`, etc.
+*.log
+*.tmp
+
+# Configuración local o del entorno
+.env
+.env.local
+*.envrc
+*.secret
+
+
+# IDEs y editores
+# VS Code
+.vscode/
+
+# JetBrains (GoLand)
+.idea/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Otros editores
+*.swp
+*~
+
+# Testing / Coverage
+# Archivos de cobertura
+coverage.out
+cover.out
+*.coverprofile
+
+# Sistemas / OS
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Docker / Contenedores
+# Ignorar archivos generados por Docker
+docker-compose.override.yml
+.docker/
+
+# Otros opcionales
+# Archivos temporales o de herramientas
+tmp/
+.cache/
+node_modules/
