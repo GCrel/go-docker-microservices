@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	//productHandler "github.com/GCrel/go-microservices-docker/internal/products/adapters/http"
-	//postgres "github.com/GCrel/go-microservices-docker/internal/products/adapters/repository"
+	productHandler "github.com/GCrel/go-microservices-docker/internal/products/adapters/http"
+	postgres "github.com/GCrel/go-microservices-docker/internal/products/adapters/repository"
 	"github.com/GCrel/go-microservices-docker/internal/products/core/domain"
 	"github.com/GCrel/go-microservices-docker/internal/products/core/service"
 	"github.com/GCrel/go-microservices-docker/pkg/database"
