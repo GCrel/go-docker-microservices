@@ -1,10 +1,6 @@
 pipeline {
-    // 1. Usar un agente de Go para pruebas
-    agent { 
-        docker { 
-            image 'golang:1.25-alpine' // Actualizado a 1.25 como tu Dockerfile
-        }
-    }
+    // Usamos el agente principal primero
+    agent any
 
     stages {
         stage('Checkout') {
@@ -15,6 +11,13 @@ pipeline {
 
         // 2. Revisar formato y errores comunes
         stage('Check Formatting & Linting') {
+            agent {
+                docker { 
+                    image 'golang:1.25-alpine'
+                    // Reutilizamos el workspace del agente principal
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'test -z "$(go fmt ./...)"' 
                 sh 'go vet ./...'
@@ -23,6 +26,12 @@ pipeline {
 
         // 3. Ejecutar pruebas unitarias
         stage('Run Unit Tests') {
+            agent {
+                docker { 
+                    image 'golang:1.25-alpine'
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'go test -v ./...'
             }
@@ -30,6 +39,12 @@ pipeline {
 
         // 4. Compilar binarios (para asegurar que compila)
         stage('Build Binaries') {
+            agent {
+                docker { 
+                    image 'golang:1.25-alpine'
+                    reuseNode true
+                }
+            }
             steps {
                 // Usamos la misma lógica de tu Dockerfile
                 sh 'go build -o ./build/products-api ./cmd/products-api/main.go'
@@ -37,11 +52,8 @@ pipeline {
             }
         }
         
-        // 5. ¡NUEVA ETAPA! Verificar que las imágenes Docker construyan
-        // Esta etapa se ejecuta en el *host* de Jenkins, no en el contenedor de Go
-        // gracias al 'agent any'
+        // 5. Verificar que las imágenes Docker construyan
         stage('Verify Docker Builds') {
-            agent any // Usa el agente principal de Jenkins (que tiene Docker-in-Docker)
             steps {
                 echo 'Verificando construcción de imágenes Docker...'
                 
@@ -59,8 +71,10 @@ pipeline {
             echo 'Pipeline de CI finalizado.'
             
             // Limpiamos las imágenes de prueba que construimos
-            sh 'docker rmi test-build/users-api:latest || true'
-            sh 'docker rmi test-build/products-api:latest || true'
+            script {
+                sh 'docker rmi test-build/users-api:latest || true'
+                sh 'docker rmi test-build/products-api:latest || true'
+            }
         }
         success {
             echo '¡Build exitoso! Todas las pruebas y builds pasaron.'
